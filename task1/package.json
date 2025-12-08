@@ -1,0 +1,20 @@
+{
+  "name": "gdg-node-task1",
+  "version": "1.0.0",
+  "description": "GDG Node.js Track - Task 1: Basic HTTP Server & Student REST API",
+  "main": "part1-server.js",
+  "scripts": {
+    "start:part1": "node part1-server.js",
+    "start:part2": "node part2-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nodejs",
+    "http-server",
+    "rest-api",
+    "gdg"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {}
+}
