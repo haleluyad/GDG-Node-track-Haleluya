@@ -4,9 +4,9 @@
   "description": "GDG Node.js Track - Task 1: Basic HTTP Server & Student REST API",
   "main": "part1-server.js",
   "scripts": {
-    "start:part1": "node part1-server.js",
-    "start:part2": "node part2-server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:server1": "node part1-server.js",
+    "start:server2": "node part2-server.js",
+    "start": "echo 'Run servers separately: npm run start:server1 and npm run start:server2'"
   },
   "keywords": [
     "nodejs",
@@ -14,7 +14,7 @@
     "rest-api",
     "gdg"
   ],
-  "author": "Your Name",
+  "author": "Haleluya Desalegn",
   "license": "MIT",
   "dependencies": {}
 }
