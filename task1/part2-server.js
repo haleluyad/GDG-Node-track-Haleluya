@@ -1,43 +1,19 @@
-// ============================================
-// PART 2: STUDENT REST API (PORT 4000)
-// ============================================
-
 const http = require('http');
 
-// In-memory database for students
 let students = [
     { id: 1, name: "John Doe" },
-    { id: 2, name: "Jane Smith" },
-    { id: 3, name: "Alice Johnson" }
+    { id: 2, name: "Jane Smith" }
 ];
-let nextId = 4; // For new students
+let nextId = 3;
 
 const server = http.createServer((req, res) => {
     const { method, url } = req;
     
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
-    // Handle OPTIONS request
-    if (method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-    }
-    
-    // ========== GET ALL STUDENTS ==========
     if (method === 'GET' && url === '/students') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-            success: true,
-            count: students.length,
-            data: students
-        }));
+        res.end(JSON.stringify(students));
     }
     
-    // ========== CREATE NEW STUDENT ==========
     else if (method === 'POST' && url === '/students') {
         let body = '';
         
@@ -49,55 +25,30 @@ const server = http.createServer((req, res) => {
             try {
                 const data = JSON.parse(body);
                 
-                // Validate input
-                if (!data.name || data.name.trim() === '') {
+                if (!data.name) {
                     res.writeHead(400, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ 
-                        success: false, 
-                        error: 'Student name is required' 
-                    }));
+                    res.end(JSON.stringify({ error: 'Name is required' }));
                     return;
                 }
                 
-                // Create new student
                 const newStudent = {
                     id: nextId++,
-                    name: data.name.trim()
+                    name: data.name
                 };
                 
-                // Add to database
                 students.push(newStudent);
-                
-                // Send response
                 res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({
-                    success: true,
-                    message: 'Student created successfully',
-                    data: newStudent
-                }));
+                res.end(JSON.stringify(newStudent));
                 
-            } catch (error) {
+            } catch {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ 
-                    success: false, 
-                    error: 'Invalid JSON format' 
-                }));
+                res.end(JSON.stringify({ error: 'Invalid JSON' }));
             }
         });
     }
     
-    // ========== UPDATE STUDENT ==========
     else if (method === 'PUT' && url.startsWith('/students/')) {
         const id = parseInt(url.split('/')[2]);
-        
-        if (isNaN(id)) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ 
-                success: false, 
-                error: 'Invalid student ID' 
-            }));
-            return;
-        }
         
         let body = '';
         
@@ -109,106 +60,57 @@ const server = http.createServer((req, res) => {
             try {
                 const data = JSON.parse(body);
                 
-                // Validate input
-                if (!data.name || data.name.trim() === '') {
+                if (!data.name) {
                     res.writeHead(400, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ 
-                        success: false, 
-                        error: 'Student name is required' 
-                    }));
+                    res.end(JSON.stringify({ error: 'Name is required' }));
                     return;
                 }
                 
-                // Find student
                 const studentIndex = students.findIndex(student => student.id === id);
                 
                 if (studentIndex === -1) {
                     res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ 
-                        success: false, 
-                        error: `Student with ID ${id} not found` 
-                    }));
+                    res.end(JSON.stringify({ error: 'Student not found' }));
                     return;
                 }
                 
-                // Update student
-                students[studentIndex].name = data.name.trim();
+                students[studentIndex].name = data.name;
                 
-                // Send response
                 res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({
-                    success: true,
-                    message: 'Student updated successfully',
-                    data: students[studentIndex]
-                }));
+                res.end(JSON.stringify(students[studentIndex]));
                 
-            } catch (error) {
+            } catch {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ 
-                    success: false, 
-                    error: 'Invalid JSON format' 
-                }));
+                res.end(JSON.stringify({ error: 'Invalid JSON' }));
             }
         });
     }
     
-    // ========== DELETE STUDENT ==========
     else if (method === 'DELETE' && url.startsWith('/students/')) {
         const id = parseInt(url.split('/')[2]);
         
-        if (isNaN(id)) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ 
-                success: false, 
-                error: 'Invalid student ID' 
-            }));
-            return;
-        }
-        
-        // Find student
         const studentIndex = students.findIndex(student => student.id === id);
         
         if (studentIndex === -1) {
             res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ 
-                success: false, 
-                error: `Student with ID ${id} not found` 
-            }));
+            res.end(JSON.stringify({ error: 'Student not found' }));
             return;
         }
         
-        // Remove student
         const deletedStudent = students.splice(studentIndex, 1)[0];
         
-        // Send response
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-            success: true,
-            message: 'Student deleted successfully',
-            data: deletedStudent
-        }));
+        res.end(JSON.stringify({ message: 'Student deleted', student: deletedStudent }));
     }
     
-    // ========== INVALID ROUTE ==========
     else {
         res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ 
-            success: false, 
-            error: 'Route not found' 
-        }));
+        res.end(JSON.stringify({ error: 'Route not found' }));
     }
 });
 
-// Start the server
 server.listen(4000, () => {
-    console.log('✅ Student REST API is running!');
-    console.log('🌐 Open: http://localhost:4000/students');
-    console.log('📌 Available endpoints:');
-    console.log('   GET    /students        → Get all students');
-    console.log('   POST   /students        → Create new student');
-    console.log('   PUT    /students/:id    → Update student');
-    console.log('   DELETE /students/:id    → Delete student');
-    console.log('=========================================');
+    console.log('Server running on port 4000');
 });
 
 module.exports = server;
